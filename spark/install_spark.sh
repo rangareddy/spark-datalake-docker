@@ -3,23 +3,21 @@
 set -eo pipefail
 
 export SPARK_HOME=${SPARK_HOME:-"/opt/spark"}
-export SPARK_VERSION=${SPARK_VERSION:-"3.5.1"}
-SPARK_CONF=${SPARK_CONF:-"/etc/spark/conf"}
-export SPARK_JARS_DIR="${SPARK_JARS_DIR:-${SPARK_HOME}/jars}"
-SPARK_3_3=3.3.0
+export SPARK_VERSION=${SPARK_VERSION:-3.5.1}
+export SPARK_CONF=${SPARK_CONF:-"/etc/spark/conf"}
+export SPARK_LOG_DIR=${SPARK_LOG_DIR:-/var/log/spark}
+export SPARK_JARS_DIR="${SPARK_JARS_DIR:-${SPARK_HOME}/jars/}"
+export SPARK_3_3=3.3.0
 
-SPARK_LOG_DIR=${SPARK_LOG_DIR:-/var/log/spark}
-mkdir -p "$SPARK_LOG_DIR"
-
-export SPARK_MAJOR_VERSION=$(echo "$SPARK_VERSION" | grep -Eo '^[0-9]+\.[0-9]*')
+export SPARK_MAJOR_VERSION
+SPARK_MAJOR_VERSION=$(echo "$SPARK_VERSION" | grep -Eo '^[0-9]+\.[0-9]*')
 export ICEBERG_VERSION="${ICEBERG_VERSION:-1.5.0}"
 export DELTA_SPARK_VERSION="${DELTA_SPARK_VERSION:-3.1.0}"
 export HUDI_VERSION="${HUDI_VERSION:-0.14.1}"
-export PAIMON_VERSION="${PAIMON_VERSION:-"0.7.0-incubating"}"
 export HADOOP_VERSION="${HADOOP_VERSION:-3.3.4}"
 
 echo "Installing the Spark with version $SPARK_VERSION"
-mkdir -p "${SPARK_HOME}" && mkdir -p "$SPARK_CONF"
+mkdir -p "${SPARK_HOME}" && mkdir -p "${SPARK_CONF}" && mkdir -p "${SPARK_LOG_DIR}"
 
 # shellcheck disable=SC2206
 IFS=. v1_array=($SPARK_3_3) v2_array=($SPARK_VERSION)
@@ -40,7 +38,7 @@ export SPARK_TAR_FILE="spark-${SPARK_VERSION}-bin-hadoop${HADOOP_MIN_VERSION}.tg
 
 # Download spark
 mkdir -p "${SPARK_HOME}" \
-    && curl https://dlcdn.apache.org/spark/spark-"${SPARK_VERSION}"/"${SPARK_TAR_FILE}" -o "${SPARK_TAR_FILE}" \
+    && curl -s https://dlcdn.apache.org/spark/spark-"${SPARK_VERSION}"/"${SPARK_TAR_FILE}" -o "${SPARK_TAR_FILE}" \
     && tar xzf "${SPARK_TAR_FILE}" --directory "${SPARK_HOME}" --strip-components 1 \
     && rm -rf "${SPARK_TAR_FILE}"
 
@@ -74,20 +72,15 @@ HUDI_DEPENDENCIES=(
   "org.apache.hudi:hudi-spark3-bundle_2.12:${HUDI_VERSION}"
 )
 
-PAIMON_DEPENDENCIES=(
-  "org.apache.paimon:paimon-spark-${SPARK_MAJOR_VERSION}:${PAIMON_VERSION}"
-)
-
 HADOOP_DEPENDENCIES=("org.apache.hadoop:hadoop-aws:${HADOOP_VERSION}")
 DATALAKE_DEPENDENCIES=(
   "${ICEBERG_DEPENDENCIES[@]}"
   "${DELTA_DEPENDENCIES[@]}"
-  "${HUDI_DEPENDENCIES}"
-  "${PAIMON_DEPENDENCIES}"
+  #"${HUDI_DEPENDENCIES}"
   "${HADOOP_DEPENDENCIES[@]}"
 )
 
 for DATALAKE_DEPENDENCY in "${DATALAKE_DEPENDENCIES[@]}"; do
-  echo "Downloading the $DATALAKE_DEPENDENCY"
-  nohup mvn dependency:copy -Dartifact="$DATALAKE_DEPENDENCY" -DoutputDirectory="${SPARK_HOME}"/jars/ 2>&1
+  echo "Downloading the ${DATALAKE_DEPENDENCY} jar"
+  mvn dependency:copy -Dartifact="${DATALAKE_DEPENDENCY}" -DoutputDirectory="${SPARK_JARS_DIR}" >/dev/null 2>&1
 done
