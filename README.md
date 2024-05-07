@@ -1,7 +1,4 @@
-# Spark + Iceberg Quickstart Docker Image
-
-This is a docker compose environment to quickly get up and running with a Spark environment and a local REST
-catalog, and MinIO as a storage backend.
+# Spark + Data Lake quickstart Docker Image
 
 ## 1. Building the Docker Image locally
 
@@ -22,3 +19,11 @@ The notebook server will then be available at http://localhost:8888
 ```sh
 docker-compose down
 ```
+## Notes
+
+| Name                 | URL                    |
+|----------------------|------------------------|
+| Jupyter Lab          | http://localhost:8888  |
+| SparkSession Web UI  | http://localhost:4040  |
+| Spark History Server | http://localhost:18080 |
+| MiniIO               | http://localhost:9090  |

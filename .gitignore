@@ -182,12 +182,12 @@ metastore_db
 *Untitled.ipynb
 .idea
 
-# Postgres data
-!spark/notebooks
-data
-
 .vscode
 
-old_data
+# Postgres data
+!datalake/notebooks
+
 data
+old_files
+
 

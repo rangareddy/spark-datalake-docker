@@ -4,7 +4,7 @@ services:
   spark-datalake:
     image: rangareddy1988/spark-datalake-3.5.1
     container_name: spark-datalake
-    build: spark/
+    build: datalake/
     networks:
       datalake_net:
     depends_on:
@@ -19,13 +19,16 @@ services:
       - AWS_SECRET_ACCESS_KEY=password
       - AWS_REGION=us-east-1
     ports:
-      - "4040:4040"    # Spark web UI
-      - "8888:8888"    # Jupyter web server
+      - "4040:4040"     # Spark web UI
+      - "4041:4041"     # Spark web UI
+      - "8888:8888"     # Jupyter web server
+      - "8889:8889"     # Jupyter Notebook
       - "8080:8080"
       - "8081:8081"
       - "10000:10000"
       - "10001:10001"
-      - "18080:18080"  # Spark History server
+      - "18080:18080"   # Spark History Server
+      - "7077:7077"     # Spark Master
   rest:
     image: tabulario/iceberg-rest
     container_name: iceberg-rest

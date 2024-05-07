@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -e
 
 # Function to check Docker installation
@@ -35,7 +34,7 @@ REPOSITORY="rangareddy1988"
 IMAGE_NAME="spark-datalake"
 TAG="latest"
 
-source datalake.env
+source datalake/datalake.env
 
 # Build full image target and log.
 IMAGE_TARGET=${REPOSITORY}/${IMAGE_NAME}-${SPARK_VERSION}:${TAG}
@@ -49,5 +48,7 @@ for ARCH in "${SUPPORTED_PLATFORMS[@]}"; do
 done
 
 echo "Building datalake image"
-docker buildx build -t "${IMAGE_TARGET}" $(for i in $(cat datalake.env); do out+="--build-arg $i " ; done; echo "$out";out="") \
-  --progress plain --platform="${PLATFORM}" ./spark
+docker buildx build -t "${IMAGE_TARGET}" $(for i in $(cat datalake/datalake.env); do out+="--build-arg $i " ; done; echo "$out";out="") \
+  --progress plain --platform="${PLATFORM}" ./datalake
+
+docker image prune -f
