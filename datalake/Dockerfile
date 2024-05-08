@@ -11,7 +11,8 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ARG JAVA_VERSION=${JAVA_VERSION:-11}
 
-RUN apt-get update && \
+RUN echo "Install OS dependencies" && \
+    apt-get update && \
     apt-get install -y --no-install-recommends \
       sudo curl vim unzip ssh bash-completion \
       build-essential software-properties-common \
@@ -30,13 +31,12 @@ RUN groupadd --gid 1001 -r ${GROUPNAME} && useradd --uid 1001 -r -m -g ${GROUPNA
 
 WORKDIR ${BASE_DIR}
 ADD entrypoint.sh datalake.env scripts conf examples notebooks ${BASE_DIR}
-RUN ls -ltr ${BASE_DIR}
 
 #RUN chmod -R 755 ${BASE_DIR}
-RUN bash install_python_dependencies.sh && rm -rf install_python_dependencies.sh
+RUN bash install/install_python_dependencies.sh && rm -rf install/install_python_dependencies.sh
 
 ENV SPARK_HOME=${SPARK_HOME:-"/opt/spark"}
-RUN bash install_spark.sh && rm -rf install_spark.sh
+RUN bash install/install_spark.sh && rm -rf install/install_spark.sh
 
 # Configure environment variables
 RUN export PY4J_SRC=$(ls $SPARK_HOME/python/lib/py4j-*-src.zip)

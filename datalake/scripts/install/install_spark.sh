@@ -45,7 +45,7 @@ fi
 
 chmod u+x "${SPARK_HOME}"/sbin/* && chmod u+x "${SPARK_HOME}"/bin/*
 
-mv "${BASE_DIR}"/spark-defaults.conf "${SPARK_HOME}"/conf
+mv "${BASE_DIR}"/spark/spark-defaults.conf "${SPARK_HOME}"/conf
 mv "${BASE_DIR}"/spark_*_app.py "${SPARK_HOME}"/examples
 
 mv "$SPARK_HOME"/conf/log4j2.properties.template "$SPARK_HOME"/conf/log4j2.properties
